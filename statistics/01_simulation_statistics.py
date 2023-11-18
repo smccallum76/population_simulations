@@ -8,43 +8,74 @@ Using output from the simulations calculate statistics using scikit-allel.
 '''
 
 import allel as sa
+import matplotlib.pyplot as plt
+import numpy as np
+
+afr_s = 0  # Start of AFR pop
+afr_e = 100  # End of AFR pop
+eur_s = afr_e  # Start of EUR pop
+eur_e = 200  # End of EUR pop
 
 neutral = sa.read_vcf("../simulations/output/ts_neutral.vcf")
 sweep = sa.read_vcf("../simulations/output/ts_sweep.vcf")
 # convenient function for capturing the genotype array from the vcf import
-gt_neutral = sa.GenotypeArray(neutral['calldata/GT'])
-gt_sweep = sa.GenotypeArray(sweep['calldata/GT'])
+gt_sweep_AFR = sa.GenotypeArray(sweep['calldata/GT'][:, afr_s:afr_e, :])
+gt_sweep_EUR = sa.GenotypeArray(sweep['calldata/GT'][:, eur_s:eur_e, :])
 # allele counts at each position
-ac_neutral = gt_neutral.count_alleles()
-ac_sweep = gt_sweep.count_alleles()
+ac_afr = gt_sweep_AFR.count_alleles()
+ac_eur = gt_sweep_EUR.count_alleles()
 '''
 XP-EHH
-- Are the two populations, in this example, AFR and EUR?
-- If so, then is the comparison below correct? Specifically, should I be slicing the such that I'm comparing
-SNPs 0:100 to SNPs 100:200?
+- Should be comparing AFR to EUR (these are the two populations)
+- The VCF file should be sliced according to the positions of the AFR and EUR populations
 - Why are there negative values and values > 1? I thought this was supposed to be a probability
         - Disregard - The standardized value can be neg or > 1
-- Is the 'pos' argument being correctly considered? 
-- Main issue --> the output from the simulation is a single population that represents both AFR and EUR. All of this 
-is included in the single VCF file. The first half of the individuals are AFR and the second half are EUR.
-
+- We can use the 'pos' argument instead of the 'map_pos' argument. The 'variants/POS' is the correct indices to use
+for this argument (as is done below). 
 '''
 # include edges ensures the calculation is performed at the beginning and end of the array
-xpehh = sa.xpehh(sweep['calldata/GT'][:, 0:9, 0], sweep['calldata/GT'][:, 10:19, 0],
-                 pos=sweep['variants/POS'], include_edges=True, use_threads=True)
+xpehh = sa.xpehh(sweep['calldata/GT'][:, afr_s:afr_e, 0], sweep['calldata/GT'][:, eur_s:eur_e, 0],
+                 pos=sweep['variants/POS'], include_edges=False, use_threads=True)
+
+plt.plot(np.arange(0, len(xpehh), 1), xpehh, label="AFR/EUR")
+plt.axhline(y=0, color='black')
+plt.axvline(x=len(xpehh)/2, color='black', linestyle='--', label='Sweep Location')
+plt.xlabel("Genomic Position")
+plt.ylabel("XP-EHH")
+plt.title("XP-EHH using AFR and EUR populations")
+plt.legend(loc="upper left")
+plt.show()
 '''
 iHS
-- Seems to be a lot of nans, not sure if I'm doing this correctly. 
+- it is normal that iHS returns a lot of nans
+- this should only be applied to one population at a time (AFR and then EUR)
 '''
-ihs = sa.ihs(sweep['calldata/GT'][:, :, 0], pos=sweep['variants/POS'], include_edges=True, use_threads=True)
+ihs_afr = sa.ihs(sweep['calldata/GT'][:, afr_s:afr_e, 0], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
+ihs_eur = sa.ihs(sweep['calldata/GT'][:, eur_s:eur_e, 0], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
 
-
+plt.plot(np.arange(0, len(ihs_afr), 1), ihs_afr, label='AFR')
+plt.plot(np.arange(0, len(ihs_eur), 1), ihs_eur, label='EUR')
+plt.axhline(y=0, color='black')
+plt.axvline(x=len(ihs_afr)/2, color='black', linestyle='--', label="Sweep Location")
+plt.xlabel("Genomic Position")
+plt.ylabel("iHS")
+plt.title("iHS using AFR and EUR populations")
+plt.legend(loc="upper left")
+plt.show()
 '''
-Fst
-- similar questions as above. Need to ensure that I correctly understand the data and what qualifies as a 
-population. Is AFR considered one population and EUR the other? 
-
+Fst 
+see example for hudson_fst here:
+https://scikit-allel.readthedocs.io/en/stable/stats/fst.html
 '''
-# fst = sa.hudson_fst(allel_counts_AFR, allel_counts_EUR)
+num, den = sa.hudson_fst(ac_afr, ac_eur)
+fst = num / den  # fst for each variant individually
+fst_overall = np.sum(num) / np.sum(den)  # fst averaging over all variants
 
+plt.plot(np.arange(0, len(fst), 1), fst, label="Fst")
+plt.axvline(x=len(fst)/2, color='black', linestyle='--', label='Sweep Location')
+plt.xlabel("Genomic Position")
+plt.ylabel("Fst")
+plt.title("Fst using AFR and EUR populations")
+plt.legend(loc="upper left")
+plt.show()
 print('done')
