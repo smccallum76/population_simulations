@@ -16,8 +16,8 @@ afr_e = 100  # End of AFR pop
 eur_s = afr_e  # Start of EUR pop
 eur_e = 200  # End of EUR pop
 
-neutral = sa.read_vcf("../simulations/output/ts_neutral.vcf")
-sweep = sa.read_vcf("../simulations/output/ts_sweep.vcf")
+neutral = sa.read_vcf("../simulations/output/ts_neutral_noScaling.vcf")
+sweep = sa.read_vcf("../simulations/output/ts_sweep_noScaling.vcf")
 # convenient function for capturing the genotype array from the vcf import
 gt_sweep_AFR = sa.GenotypeArray(sweep['calldata/GT'][:, afr_s:afr_e, :])
 gt_sweep_EUR = sa.GenotypeArray(sweep['calldata/GT'][:, eur_s:eur_e, :])
@@ -34,12 +34,16 @@ XP-EHH
 for this argument (as is done below). 
 '''
 # include edges ensures the calculation is performed at the beginning and end of the array
-xpehh = sa.xpehh(sweep['calldata/GT'][:, afr_s:afr_e, 0], sweep['calldata/GT'][:, eur_s:eur_e, 0],
+xpehhS = sa.xpehh(sweep['calldata/GT'][:, afr_s:afr_e, 0], sweep['calldata/GT'][:, eur_s:eur_e, 0],
                  pos=sweep['variants/POS'], include_edges=False, use_threads=True)
+xpehhN = sa.xpehh(neutral['calldata/GT'][:, afr_s:afr_e, 1], neutral['calldata/GT'][:, eur_s:eur_e, 1],
+                 pos=neutral['variants/POS'], include_edges=False, use_threads=True)
 
-plt.plot(np.arange(0, len(xpehh), 1), xpehh, label="AFR/EUR")
+plt.figure(figsize=(18, 5))
+plt.plot(np.arange(0, len(xpehhS), 1), xpehhS, label="AFR/EUR Sweep", alpha=0.7)
+plt.plot(np.arange(0, len(xpehhN), 1), xpehhN, label="AFR/EUR Neutral", alpha=0.7, color='red')
 plt.axhline(y=0, color='black')
-plt.axvline(x=len(xpehh)/2, color='black', linestyle='--', label='Sweep Location')
+plt.axvline(x=len(xpehhS)/2, color='black', linestyle='--', label='Sweep Location')
 plt.xlabel("Genomic Position")
 plt.ylabel("XP-EHH")
 plt.title("XP-EHH using AFR and EUR populations")
@@ -50,11 +54,16 @@ iHS
 - it is normal that iHS returns a lot of nans
 - this should only be applied to one population at a time (AFR and then EUR)
 '''
-ihs_afr = sa.ihs(sweep['calldata/GT'][:, afr_s:afr_e, 0], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
+ihs_afr = sa.ihs(sweep['calldata/GT'][:, afr_s:afr_e, 1], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
+# ihs_eur = sa.ihs(neutral['calldata/GT'][:, afr_s:afr_e, 1], pos=neutral['variants/POS'], include_edges=False, use_threads=True)
 ihs_eur = sa.ihs(sweep['calldata/GT'][:, eur_s:eur_e, 0], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
 
-plt.plot(np.arange(0, len(ihs_afr), 1), ihs_afr, label='AFR')
-plt.plot(np.arange(0, len(ihs_eur), 1), ihs_eur, label='EUR')
+# ihs_afr = ihs_afr[~np.isnan(ihs_afr)]  # is this right? Should the nans be dropped?
+# ihs_eur = ihs_eur[~np.isnan(ihs_eur)]
+
+plt.figure(figsize=(18, 5))
+plt.scatter(np.arange(0, len(ihs_afr), 1), ihs_afr, label='AFR', s=3)
+plt.scatter(np.arange(0, len(ihs_eur), 1), ihs_eur, label='EUR', s=3, alpha=0.3, color='red')
 plt.axhline(y=0, color='black')
 plt.axvline(x=len(ihs_afr)/2, color='black', linestyle='--', label="Sweep Location")
 plt.xlabel("Genomic Position")
@@ -71,6 +80,7 @@ num, den = sa.hudson_fst(ac_afr, ac_eur)
 fst = num / den  # fst for each variant individually
 fst_overall = np.sum(num) / np.sum(den)  # fst averaging over all variants
 
+plt.figure(figsize=(18, 5))
 plt.plot(np.arange(0, len(fst), 1), fst, label="Fst")
 plt.axvline(x=len(fst)/2, color='black', linestyle='--', label='Sweep Location')
 plt.xlabel("Genomic Position")
