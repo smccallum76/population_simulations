@@ -9,14 +9,21 @@ warnings.filterwarnings("ignore")
 import stdpopsim
 import matplotlib.pyplot as plt
 import numpy as np
+import time
+
+# timing 1e6 no scaling = 5 mins
+# timing 1e7 no scaling = 8.6 mins
+
+start = time.time()
 
 species = stdpopsim.get_species("HomSap")  # Homo sapiens
 model = species.get_demographic_model("OutOfAfrica_2T12")
-samples = {"AFR":100, "EUR":100}
+samples = {"AFR": 100, "EUR": 100}
 # the contig is fully neutral, the sweeping mutation will be inserted later
 # note, 'right' implies the length of chr22 to use. The full chromosome is 51 million SNPS in length, but
 # we will just use a subset of this chromosome.
-contig = species.get_contig("chr22", right=1e6)
+contig = species.get_contig("chr22", right=5e6)
+# contig = species.get_contig("chr22")
 '''
 The next session will provide settings for the sweep. This includes:
  - randomly selecting a chromosome in a population of our choice
@@ -38,10 +45,10 @@ that is beneficial within a single population.
 
 extended_events = stdpopsim.ext.selective_sweep(
     single_site_id=locus_id,
-    # population="pop_0",  # this is where the mutation starts
+     # this is where the mutation starts
     population="AFR",
     selection_coeff=0.1,  # selection coefficient for the mutation [0.1 for humans]
-    mutation_generation_ago=1000,  # mutation originates 1000 gens ago in AFR pop [5k-30k years, or 10k for one]
+    mutation_generation_ago=400,  # mutation originates 1000 gens ago in AFR pop [5k-30k years, or 10k for one]
     min_freq_at_end=0.8  # mutation frequency at present day [look into this]
 )
 
@@ -57,7 +64,7 @@ ts_sweep = engine.simulate(
     samples,
     seed=123,
     extended_events=extended_events,
-    slim_scaling_factor=10,
+    slim_scaling_factor=1,
     slim_burn_in=0.1
 )
 
@@ -67,42 +74,44 @@ ts_neutral = engine.simulate(
     samples,
     seed=123,
     # no extended events
-    slim_scaling_factor=10,
+    slim_scaling_factor=1,
     slim_burn_in=0.1
 )
 
 '''
 Plot the data to compare nucleotide diversity in 10Kb windows for neutral and sweep
 '''
-windows = [w for w in range(0, int(ts_neutral.sequence_length), 10000)]
-windows.append(int(ts_neutral.sequence_length))
-neutral_pi = ts_neutral.diversity(windows=windows)
-sweep_pi = ts_sweep.diversity(windows=windows)
-plt.plot(neutral_pi, "b", label="neutral")
-plt.plot(sweep_pi, "r", label="sweep")
-plt.axvline(len(neutral_pi) / 2, color="black", linestyle="dashed")
-plt.legend()
-plt.xlabel("Genomic Window")
-plt.ylabel("Diversity")
-plt.show()
+# windows = [w for w in range(0, int(ts_neutral.sequence_length), 10000)]
+# windows.append(int(ts_neutral.sequence_length))
+# neutral_pi = ts_neutral.diversity(windows=windows)
+# sweep_pi = ts_sweep.diversity(windows=windows)
+# plt.plot(neutral_pi, "b", label="neutral")
+# plt.plot(sweep_pi, "r", label="sweep")
+# plt.axvline(len(neutral_pi) / 2, color="black", linestyle="dashed")
+# plt.legend()
+# plt.xlabel("Genomic Window")
+# plt.ylabel("Diversity")
+# plt.show()
 
 '''
 export this data
 '''
-print("Genotypes")
-samp_ids = ts_sweep.samples()
-individuals = [ts_sweep.node(i).individual for i in samp_ids]  # diploids - so each individual takes two slots
-geno_array = np.empty((0, ts_sweep.sample_size))  # length is all SNPs and width is all individuals (diploids)
-for v in ts_sweep.variants():
-    # print(f"Site {v.site.id}: {v.genotypes}")
-    vars = v.genotypes.reshape((1, ts_sweep.sample_size))
-    geno_array = np.append(geno_array, vars, axis=0)  # transpose this
+print("Saving VCF")
+# samp_ids = ts_sweep.samples()
+# individuals = [ts_sweep.node(i).individual for i in samp_ids]  # diploids - so each individual takes two slots
+# geno_array = np.empty((0, ts_sweep.sample_size))  # length is all SNPs and width is all individuals (diploids)
+# for v in ts_sweep.variants():
+#     # print(f"Site {v.site.id}: {v.genotypes}")
+#     vars = v.genotypes.reshape((1, ts_sweep.sample_size))
+#     geno_array = np.append(geno_array, vars, axis=0)  # transpose this
 
 # write the simulations in vcf format
-with open("output/ts_sweep.vcf", "w") as vcf_file:
+with open("output/ts_sweep_noScaling.vcf", "w") as vcf_file:
     ts_sweep.write_vcf(vcf_file)
 
-with open("output/ts_neutral.vcf", "w") as vcf_file:
+with open("output/ts_neutral_noScaling.vcf", "w") as vcf_file:
     ts_neutral.write_vcf(vcf_file)
 
-print('done')
+end = time.time()
+delta = round((end - start) / 60, 2)
+print(delta, " minutes")
