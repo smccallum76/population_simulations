@@ -21,9 +21,15 @@ sweep = sa.read_vcf("../simulations/output/ts_sweep_noScaling.vcf")
 # convenient function for capturing the genotype array from the vcf import
 gt_sweep_AFR = sa.GenotypeArray(sweep['calldata/GT'][:, afr_s:afr_e, :])
 gt_sweep_EUR = sa.GenotypeArray(sweep['calldata/GT'][:, eur_s:eur_e, :])
+
+gt_neutral_AFR = sa.GenotypeArray(neutral['calldata/GT'][:, afr_s:afr_e, :])
+gt_neutral_EUR = sa.GenotypeArray(neutral['calldata/GT'][:, eur_s:eur_e, :])
 # allele counts at each position
 ac_afr = gt_sweep_AFR.count_alleles()
 ac_eur = gt_sweep_EUR.count_alleles()
+
+ac_afrN = gt_neutral_AFR.count_alleles()
+ac_eurN = gt_neutral_EUR.count_alleles()
 '''
 XP-EHH
 - Should be comparing AFR to EUR (these are the two populations)
@@ -39,6 +45,7 @@ xpehhS = sa.xpehh(sweep['calldata/GT'][:, afr_s:afr_e, 0], sweep['calldata/GT'][
 xpehhN = sa.xpehh(neutral['calldata/GT'][:, afr_s:afr_e, 1], neutral['calldata/GT'][:, eur_s:eur_e, 1],
                  pos=neutral['variants/POS'], include_edges=False, use_threads=True)
 
+'''Genotype Position Plots - XP-EHH'''
 plt.figure(figsize=(18, 5))
 plt.plot(np.arange(0, len(xpehhS), 1), xpehhS, label="AFR/EUR Sweep", alpha=0.7)
 plt.plot(np.arange(0, len(xpehhN), 1), xpehhN, label="AFR/EUR Neutral", alpha=0.7, color='red')
@@ -49,17 +56,30 @@ plt.ylabel("XP-EHH")
 plt.title("XP-EHH using AFR and EUR populations")
 plt.legend(loc="upper left")
 plt.show()
+
+'''Histogram Plots - XP-EHH '''
+n_bins = 100
+fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(12, 5))
+ax[0].hist(xpehhS, bins=n_bins, color='blue')
+ax[1].hist(xpehhN, bins=n_bins, color='red')
+ax[0].set_xlabel('XP-EHH Value')
+ax[1].set_xlabel('XP-EHH Value')
+ax[0].set_ylabel('Frequency')
+ax[0].set_title('Histogram of XP-EHH Sweep')
+ax[1].set_title('Histogram of XP-EHH Neutral')
+plt.show()
+
 '''
 iHS
 - it is normal that iHS returns a lot of nans
 - this should only be applied to one population at a time (AFR and then EUR)
 '''
-ihs_afr = sa.ihs(sweep['calldata/GT'][:, afr_s:afr_e, 1], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
-# ihs_eur = sa.ihs(neutral['calldata/GT'][:, afr_s:afr_e, 1], pos=neutral['variants/POS'], include_edges=False, use_threads=True)
+ihs_afr = sa.ihs(sweep['calldata/GT'][:, afr_s:afr_e, 0], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
 ihs_eur = sa.ihs(sweep['calldata/GT'][:, eur_s:eur_e, 0], pos=sweep['variants/POS'], include_edges=False, use_threads=True)
+ihs_afrN = sa.ihs(neutral['calldata/GT'][:, afr_s:afr_e, 0], pos=neutral['variants/POS'], include_edges=False, use_threads=True)
+ihs_eurN = sa.ihs(neutral['calldata/GT'][:, eur_s:eur_e, 0], pos=neutral['variants/POS'], include_edges=False, use_threads=True)
 
-# ihs_afr = ihs_afr[~np.isnan(ihs_afr)]  # is this right? Should the nans be dropped?
-# ihs_eur = ihs_eur[~np.isnan(ihs_eur)]
+'''Genotype Position Plots - iHS'''
 
 plt.figure(figsize=(18, 5))
 plt.scatter(np.arange(0, len(ihs_afr), 1), ihs_afr, label='AFR', s=3)
@@ -71,6 +91,21 @@ plt.ylabel("iHS")
 plt.title("iHS using AFR and EUR populations")
 plt.legend(loc="upper left")
 plt.show()
+
+'''Histogram Plots - iHS '''
+n_bins = 100
+fig, ax = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(12, 8))
+ax[0, 0].hist(ihs_afr, bins=n_bins, color='blue')
+ax[0, 1].hist(ihs_eur, bins=n_bins, color='blue')
+ax[1, 0].hist(ihs_afrN, bins=n_bins, color='red')
+ax[1, 1].hist(ihs_eurN, bins=n_bins, color='red')
+ax[1, 0].set_xlabel('iHS Value')
+ax[0, 0].set_title('Histogram of iHS AFR Sweep')
+ax[0, 1].set_title('Histogram of iHS EUR with Sweep in AFR')
+ax[1, 0].set_title('Histogram of iHS AFR Neutral')
+ax[1, 1].set_title('Histogram of iHS EUR Neutral')
+plt.show()
+
 '''
 Fst 
 see example for hudson_fst here:
@@ -79,6 +114,10 @@ https://scikit-allel.readthedocs.io/en/stable/stats/fst.html
 num, den = sa.hudson_fst(ac_afr, ac_eur)
 fst = num / den  # fst for each variant individually
 fst_overall = np.sum(num) / np.sum(den)  # fst averaging over all variants
+
+num2, den2 = sa.hudson_fst(ac_afrN, ac_eurN)
+fstN = num2 / den2  # fst for each variant individually
+fst_overall2 = np.sum(num) / np.sum(den)  # fst averaging over all variants
 
 plt.figure(figsize=(18, 5))
 plt.plot(np.arange(0, len(fst), 1), fst, label="Fst")
@@ -89,3 +128,15 @@ plt.title("Fst using AFR and EUR populations")
 plt.legend(loc="upper left")
 plt.show()
 print('done')
+
+'''Histogram Plots - Fst '''
+n_bins = 100
+fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(12, 5))
+ax[0].hist(fst, bins=n_bins, color='blue', log=True)
+ax[1].hist(fstN, bins=n_bins, color='red', log=True)
+ax[0].set_xlabel('Fst Value')
+ax[1].set_xlabel('Fst Value')
+ax[0].set_ylabel('Frequency[log scale]')
+ax[0].set_title('Histogram of Fst Sweep')
+ax[1].set_title('Histogram of Fst Neutral')
+plt.show()
