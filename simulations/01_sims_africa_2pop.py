@@ -23,7 +23,7 @@ samples = {"AFR": 100, "EUR": 100}
 # note, 'right' implies the length of chr22 to use. The full chromosome is 51 million SNPS in length, but
 # we will just use a subset of this chromosome.
 contig = species.get_contig("chr22", right=5e6)
-# contig = species.get_contig("chr22")
+
 '''
 The next session will provide settings for the sweep. This includes:
  - randomly selecting a chromosome in a population of our choice
@@ -48,8 +48,8 @@ extended_events = stdpopsim.ext.selective_sweep(
      # this is where the mutation starts
     population="AFR",
     selection_coeff=0.1,  # selection coefficient for the mutation [0.1 for humans]
-    mutation_generation_ago=400,  # mutation originates 1000 gens ago in AFR pop [5k-30k years, or 10k for one]
-    min_freq_at_end=0.8  # mutation frequency at present day [look into this]
+    mutation_generation_ago=300,  # mutation originates 400 gens ago in AFR pop [5k-30k years, or 10k for one]
+    min_freq_at_end=0.5  # mutation frequency at present day [look into this]
 )
 
 '''
@@ -64,7 +64,7 @@ ts_sweep = engine.simulate(
     samples,
     seed=123,
     extended_events=extended_events,
-    slim_scaling_factor=1,
+    slim_scaling_factor=10,
     slim_burn_in=0.1
 )
 
@@ -74,7 +74,7 @@ ts_neutral = engine.simulate(
     samples,
     seed=123,
     # no extended events
-    slim_scaling_factor=1,
+    slim_scaling_factor=10,
     slim_burn_in=0.1
 )
 
