@@ -49,12 +49,32 @@ extended_events = stdpopsim.ext.selective_sweep(
     population="AFR",
     selection_coeff=0.1,  # selection coefficient for the mutation [0.1 for humans]
     mutation_generation_ago=300,  # mutation originates 400 gens ago in AFR pop [5k-30k years, or 10k for one]
-    min_freq_at_end=0.5  # mutation frequency at present day [look into this]
+    min_freq_at_end=0.4  # mutation frequency at present day [look into this]
 )
 
 '''
 Now we run the simulation using SLiM. For comparison a neutral simulation will 
 also be run
+
+slim_scaling_factor:
+    Reduces population size by a scaling factor (Q) 
+    Rescales time by Q 
+    If model selection is used it would rescale the selection coefficient by Q 
+    In general, this results in indistinguishable output. However, this may NOT be true in simulations with large 
+    amount of selection. In my case, I'm assuming we do not have "large" amounts of selection since there is on a single 
+    selective sweep. 
+    Link --> https://popsim-consortium.github.io/stdpopsim-docs/stable/tutorial.html#slim-scaling-factor 
+    
+slim_burn_in:
+    Number of generations before SLiM kicks in. 
+    MSPRIME is used for the prior generations 
+    The value of 10 is the default and considered to be "safe" 
+    Link --> https://popsim-consortium.github.io/stdpopsim-docs/stable/tutorial.html#the-slim-burn-in 
+    
+min_freq_at_end 
+    Frequency of the mutation in the present data (e.g., at the end of the sweep) should be greater than this value.  
+    Link --> https://popsim-consortium.github.io/stdpopsim-docs/stable/tutorial.html#selective-sweeps 
+    (scroll down to min_freq_at_end) 
 '''
 
 engine = stdpopsim.get_engine("slim")
@@ -64,8 +84,8 @@ ts_sweep = engine.simulate(
     samples,
     seed=123,
     extended_events=extended_events,
-    slim_scaling_factor=10,
-    slim_burn_in=0.1
+    slim_scaling_factor=9,
+    slim_burn_in=10  # number of gens before SLiM begins (these gens are msprime). 10 is safe and default
 )
 
 ts_neutral = engine.simulate(
@@ -74,8 +94,8 @@ ts_neutral = engine.simulate(
     samples,
     seed=123,
     # no extended events
-    slim_scaling_factor=10,
-    slim_burn_in=0.1
+    slim_scaling_factor=9,
+    slim_burn_in=10  # number of gens before SLiM begins (these gens are msprime). 10 is safe and default
 )
 
 '''
@@ -106,10 +126,10 @@ print("Saving VCF")
 #     geno_array = np.append(geno_array, vars, axis=0)  # transpose this
 
 # write the simulations in vcf format
-with open("output/ts_sweep_scaling10xx.vcf", "w") as vcf_file:
+with open("output/ts_sweep_Scaling9_300x40.vcf", "w") as vcf_file:
     ts_sweep.write_vcf(vcf_file)
 
-with open("output/ts_neutral_scaling10xx.vcf", "w") as vcf_file:
+with open("output/ts_neutral_Scaling9_300x40.vcf", "w") as vcf_file:
     ts_neutral.write_vcf(vcf_file)
 
 end = time.time()
