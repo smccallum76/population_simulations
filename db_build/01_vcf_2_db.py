@@ -7,10 +7,12 @@ from sqlalchemy import create_engine
 import pandas as pd
 import allel as sa
 import numpy as np
+import os
 
 '''
 To Do:
-- seems to be working for a single file and db update
+- seems to be working for a single file and db update -- use os to loop over all files
+- need to add labels --> done
 - need to ensure that the file name is modified to honor the file being imported (not hard coded as currently set)
 - need to see how duplicate rows are handled in the db...don't want to add data that already exists
 - I think keeping the vcf test clean for now is the right idea, but stats will need to be added.  
@@ -19,8 +21,14 @@ To Do:
 
 afr_samples = 100  # african samples
 eur_samples = 100  # european samples
-
+'''
+-----------------------------------------------------------------------------------------------------------------------
+Import data and reshape
+-----------------------------------------------------------------------------------------------------------------------
+'''
 # import
+files = os.listdir('vcf_files_temp/sweep')
+
 vcf = sa.read_vcf("vcf_files_temp/sweep/ts_sweep_5.vcf")
 gt_shape = np.shape(vcf['calldata/GT'])
 gt_len = gt_shape[0]
@@ -32,6 +40,11 @@ gt_dip = gt_shape[2]
 # - the columns are structured such that we have afr_ind0_diploid0, afr_ind0_dip1, afr_ind1_dip0, afr_ind1_dip1...eur_ind99_dip0, eur_ind99_dip1
 gt_2d = np.array(vcf['calldata/GT']).reshape(gt_len, -1)
 
+'''
+-----------------------------------------------------------------------------------------------------------------------
+Build column names based on the number of afr and eur samples (100 of each)
+-----------------------------------------------------------------------------------------------------------------------
+'''
 # loop to construct the column names that are consistent with gt_2d. Structure = Demographic_Individual_Diploid
 all_cols = []
 for i in range(gt_ind):
@@ -41,7 +54,7 @@ for i in range(gt_ind):
         else:
             all_cols.append('eur_' + str(i-afr_samples) + '_' + str(d))
 
-# convert genotype to a dataframe for each diploid
+# add the genotype data to a dataframe with the new column labels
 gt_df = pd.DataFrame(gt_2d, columns=all_cols)  # diploid 0
 
 # add the additional columnns that are of interest
@@ -52,9 +65,22 @@ gt_df['variant_alt0'] = vcf['variants/ALT'][:, 0]
 gt_df['variant_alt1'] = vcf['variants/ALT'][:, 1]
 gt_df['variant_alt2'] = vcf['variants/ALT'][:, 2]
 gt_df['vcf_name'] = 'ts_sweep_5.vcf'
+gt_df['uniq_id'] = gt_df['vcf_name'] + "_" + gt_df['snp_position'].astype(str)
 
+'''
+-----------------------------------------------------------------------------------------------------------------------
+Add neutral, link, and sweep labels
 
-engine = create_engine('sqlite:///test.db', echo=False)
-gt_df.to_sql('sweep_test', con=engine, if_exists='append')
-# conn = sqlite3.connect('test.db')
+For this set of sims the length is 5e6 and the sweep is hard set at 2.5e6. 
+The linkage is assumed to be a fixed buffer of 500K  +/- the sweep location. This linkage range was determined based
+on the XP-EHH plot that showed the increase in the sweep covering this approximate range. 
+-----------------------------------------------------------------------------------------------------------------------
+'''
+
+gt_df['label'] = 'neutral'
+gt_df.loc[(gt_df['snp_position'] > 2.5e6 - 5e5) & (gt_df['snp_position'] < 2.5e6 + 5e5), 'label'] = 'link'
+gt_df.loc[gt_df['snp_position'] == 2.5e6, 'label'] = 'sweep'
+
+# engine = create_engine('sqlite:///test.db', echo=False)
+# gt_df.to_sql('sweep_test', con=engine, if_exists='append')
 print('done')
