@@ -18,8 +18,8 @@ eur_e = 200  # End of EUR pop
 
 # neutral = sa.read_vcf("../simulations/output/ts_neutral_noScaling.vcf")
 # sweep = sa.read_vcf("../simulations/output/ts_sweep_noScaling.vcf")
-neutral = sa.read_vcf("../simulations/output/ts_neutral_scaling10.vcf")
-sweep = sa.read_vcf("../simulations/output/ts_sweep_scaling10.vcf")
+neutral = sa.read_vcf("../simulations/output/ts_neutral.vcf")
+sweep = sa.read_vcf("../simulations/output/ts_sweep.vcf")
 
 # convenient function for capturing the genotype array from the vcf import
 gt_sweep_AFR = sa.GenotypeArray(sweep['calldata/GT'][:, afr_s:afr_e, :])
