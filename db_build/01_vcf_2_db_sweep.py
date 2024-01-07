@@ -41,7 +41,7 @@ total_files = len(files)
 if update_db == 'yes':
     engine = create_engine('sqlite:///' + db_path + db_name, echo=False)
 
-count=0
+count = 0
 start = time.time()
 for f in files:
     stop = time.time()

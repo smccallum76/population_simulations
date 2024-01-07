@@ -17,6 +17,12 @@ import pandas as pd
 import allel as sa
 import numpy as np
 
+'''
+-----------------------------------------------------------------------------------------------------------------------
+Query the simulation db to determine the unique number of simulations
+-----------------------------------------------------------------------------------------------------------------------
+'''
+
 start = time.time()
 path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 conn = sqlite3.connect(path + 'population_simulation.db')
@@ -35,13 +41,18 @@ end = time.time()
 mins = round((end - start) / 60, 2)
 print("Time to load unique sims [mins] = ", mins)
 
-# iterate over each unique simulation and calculate the stats
+print('done')
+'''
+-----------------------------------------------------------------------------------------------------------------------
+Iterate over each unique simulation and calculate the stats
+-----------------------------------------------------------------------------------------------------------------------
+'''
 start = time.time()
 for sim in uniq_sims:
     print('Simulation File: ', sim)
     # define sql query based on the unique simulation name
     sql2 = f"""
-    SELECT * 
+    SELECT *
     FROM sweep_simulations
     WHERE vcf_name LIKE {"'" + sim + "'"}
     """
@@ -63,19 +74,25 @@ for sim in uniq_sims:
     afr_ga = sa.GenotypeArray(np.array(afr).reshape((d1_afr, d2_afr, d3_afr)))
     eur_ga = sa.GenotypeArray(np.array(eur).reshape((d1_eur, d2_eur, d3_eur)))
 
-    """ Calculate Statistics """
-    # allele counts at each position
+    '''
+    -------------------------------------------------------------------------------------------------------------------
+    Calculate statistics
+    -------------------------------------------------------------------------------------------------------------------
+    '''
+    ''' --- ALLELE COUNTS --- '''
     afr_ac = afr_ga.count_alleles()
     eur_ac = eur_ga.count_alleles()
 
+    ''' --- XP-EHH --- '''
     # xp-ehh (expects a 2d array, so the genotype array is NOT used here, use the afr and eur df's instead)
     xpehh = sa.xpehh(afr, eur, pos=df1['snp_position'], include_edges=False, use_threads=True)
 
-    # Fst
+    ''' --- Fst --- '''
     num, den = sa.hudson_fst(afr_ac, eur_ac)
     fst = num / den  # fst for each variant individually
     fst_overall = np.sum(num) / np.sum(den)  # fst averaging over all variants
 
+    ''' --- iHS --- '''
     # iHS --> error checking required b/c this stat can crash (ts_sweep_120.vcf will break) ZeroDivisioon Error
     # unstandardized first
     try:
@@ -98,7 +115,11 @@ for sim in uniq_sims:
     except TypeError:
         ihs_eur_std = np.nan
 
-    """ Build table of stats data """
+    '''
+    -------------------------------------------------------------------------------------------------------------------
+    BUILD TABLE OF STATS DATA
+    -------------------------------------------------------------------------------------------------------------------
+    '''
     stat_tbl = pd.DataFrame()
 
     stat_tbl['snp_position'] = df1['snp_position']
@@ -118,6 +139,12 @@ for sim in uniq_sims:
     stat_tbl['fst'] = fst
     stat_tbl['ihs_afr_std'] = ihs_afr_std
     stat_tbl['ihs_eur_std'] = ihs_eur_std
+
+    '''
+    -------------------------------------------------------------------------------------------------------------------
+    ADD STATS TABLE TO THE SIMULATION DB - not yet complete
+    -------------------------------------------------------------------------------------------------------------------
+    '''
 
 end = time.time()
 mins = round((end - start) / 60, 2)
