@@ -47,7 +47,7 @@ Set up batch index list
 -----------------------------------------------------------------------------------------------------------------------
 '''
 # define a batch
-batch_size = 30  # number of simulations to use in each batch
+batch_size = 50  # number of simulations to use in each batch
 batch_rmdr = len(uniq_sims) % batch_size  # account for the leftovers when total sims is not evenly divided by batch
 batch_count = int(len(uniq_sims) / batch_size)  # number of batches based on the batch size
 if batch_rmdr > 0:  # add on more to the batch to account for the leftovers
