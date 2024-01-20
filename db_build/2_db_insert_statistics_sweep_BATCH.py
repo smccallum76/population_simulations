@@ -132,15 +132,15 @@ for batch in idx_batch_list:
         except ZeroDivisionError:
             ihs_eur = np.nan
 
-        # Standardize the iHS scores
-        try:
-            ihs_afr_std, _ = sa.standardize_by_allele_count(ihs_afr, afr_ac[:, 1], diagnostics=False)
-        except TypeError:
-            ihs_afr_std = np.nan
-        try:
-            ihs_eur_std, _ = sa.standardize_by_allele_count(ihs_eur, eur_ac[:, 1], diagnostics=False)
-        except TypeError:
-            ihs_eur_std = np.nan
+        # # Standardize the iHS scores (this has to be completed after all the unstd scores are calculated
+        # try:
+        #     ihs_afr_std, _ = sa.standardize_by_allele_count(ihs_afr, afr_ac[:, 1], diagnostics=False)
+        # except TypeError:
+        #     ihs_afr_std = np.nan
+        # try:
+        #     ihs_eur_std, _ = sa.standardize_by_allele_count(ihs_eur, eur_ac[:, 1], diagnostics=False)
+        # except TypeError:
+        #     ihs_eur_std = np.nan
 
         '''
         -------------------------------------------------------------------------------------------------------------------
@@ -165,8 +165,8 @@ for batch in idx_batch_list:
         stat_tbl['eur_ac_2'] = eur_ac[:, 2]
         stat_tbl['xpehh'] = xpehh
         stat_tbl['fst'] = fst
-        stat_tbl['ihs_afr_std'] = ihs_afr_std
-        stat_tbl['ihs_eur_std'] = ihs_eur_std
+        stat_tbl['ihs_afr_unstd'] = ihs_afr
+        stat_tbl['ihs_eur_unstd'] = ihs_eur
 
         stat_tbl_batch = pd.concat([stat_tbl_batch, stat_tbl], ignore_index=True)
         '''
