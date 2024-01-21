@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
 db_name = 'population_simulation.db'
-table_name = 'sweep_simulations_stats'
+table_name = 'neutral_simulations_stats'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 
 # if update_db == 'yes':
@@ -35,7 +35,7 @@ SELECT
     ihs_afr_unstd,
     ihs_eur_unstd
 
-FROM sweep_simulations_stats
+FROM neutral_simulations_stats
 """
 # create df that contains the query return
 df = pd.read_sql(sql2, conn)
@@ -68,13 +68,13 @@ if update_db == 'yes':
     cursor = conn.cursor()
     cursor.execute(
         """
-        ALTER TABLE sweep_simulations_stats 
+        ALTER TABLE neutral_simulations_stats 
         ADD COLUMN 'ihs_afr_std' 'float'
         """)
 
     cursor.execute(
         """
-        ALTER TABLE sweep_simulations_stats 
+        ALTER TABLE neutral_simulations_stats 
         ADD COLUMN 'ihs_eur_std' 'float'
         """)
     print('converting ihs values to tuples')
@@ -83,7 +83,7 @@ if update_db == 'yes':
     # Insert a row into the table
     # cursor.executemany('REPLACE INTO sweep_simulations_stats (uniq_id, ihs_afr_std, ihs_eur_std) VALUES (?,?,?)', sqltuples)
     update_sql = """
-        UPDATE sweep_simulations_stats SET ihs_afr_std=?, ihs_eur_std=? WHERE uniq_id=?
+        UPDATE neutral_simulations_stats SET ihs_afr_std=?, ihs_eur_std=? WHERE uniq_id=?
     """
     cursor.executemany(update_sql, sqltuples)
     # Commit the changes
