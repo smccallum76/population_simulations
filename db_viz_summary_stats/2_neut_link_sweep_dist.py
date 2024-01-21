@@ -52,7 +52,7 @@ HISTOGRAM - XP-EHH Distribution
 '''
 n_bins = 100
 plt.figure(figsize=(12, 5))
-# plt.hist(neutral['xpehh'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
+plt.hist(neutral['xpehh'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
 plt.hist(link['xpehh'], density=True, label='link', bins=n_bins+300, alpha=0.7, color='red')
 plt.hist(sweep['xpehh'], density=True, label='sweep', bins=n_bins, alpha=0.7, color='blue')
 plt.xlabel('XP-EHH Value')
@@ -70,7 +70,7 @@ n_bins = 100
 
 # african population
 plt.figure(figsize=(12, 5))
-# plt.hist(neutral['ihs_afr_std'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
+plt.hist(neutral['ihs_afr_std'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
 plt.hist(link['ihs_afr_std'], density=True, label='link', bins=n_bins+300, alpha=0.7, color='red')
 plt.hist(sweep['ihs_afr_std'], density=True, label='sweep', bins=n_bins-50, alpha=0.7, color='blue')
 plt.xlabel('iHS Value')
@@ -81,7 +81,7 @@ plt.show()
 
 # european population
 plt.figure(figsize=(12, 5))
-# plt.hist(neutral['ihs_afr_std'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
+plt.hist(neutral['ihs_afr_std'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
 plt.hist(link['ihs_eur_std'], density=True, label='link', bins=n_bins+300, alpha=0.7, color='red')
 plt.hist(sweep['ihs_eur_std'], density=True, label='sweep', bins=n_bins-50, alpha=0.7, color='blue')
 plt.xlabel('iHS Value')
