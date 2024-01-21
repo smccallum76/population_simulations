@@ -47,7 +47,7 @@ extended_events = stdpopsim.ext.selective_sweep(
     single_site_id=locus_id,
      # this is where the mutation starts
     population="AFR",
-    selection_coeff=0.1,  # selection coefficient for the mutation [0.1 for humans]
+    selection_coeff=0.05,  # selection coefficient for the mutation [0.1 for humans]
     mutation_generation_ago=300,  # mutation originates 400 gens ago in AFR pop [5k-30k years, or 10k for one]
     min_freq_at_end=0.4  # mutation frequency at present day [look into this]
 )
@@ -126,10 +126,10 @@ print("Saving VCF")
 #     geno_array = np.append(geno_array, vars, axis=0)  # transpose this
 
 # write the simulations in vcf format
-with open("output/ts_sweep_Scaling9_300x40.vcf", "w") as vcf_file:
+with open("output/ts_sweep_Scaling9_300x40_05.vcf", "w") as vcf_file:
     ts_sweep.write_vcf(vcf_file)
 
-with open("output/ts_neutral_Scaling9_300x40.vcf", "w") as vcf_file:
+with open("output/ts_neutral_Scaling9_300x40_05.vcf", "w") as vcf_file:
     ts_neutral.write_vcf(vcf_file)
 
 end = time.time()
