@@ -10,12 +10,12 @@ import numpy as np
 from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
-db_name = 'population_simulation.db'
+db_name = 'population_simulation_v2.db'
 table_name = 'sweep_simulations_stats'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 
-# if update_db == 'yes':
-engine = create_engine('sqlite:///' + db_path + db_name, echo=False)
+if update_db == 'yes':
+    engine = create_engine('sqlite:///' + db_path + db_name, echo=False)
 
 '''
 -----------------------------------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ Query the simulation db and extract unstandardized iHS and allele counts
 '''
 
 start = time.time()
-conn = sqlite3.connect(db_path + 'population_simulation.db')
+conn = sqlite3.connect(db_path + db_name)
 
 # define sql query based on the unique simulation name
 sql2 = """
@@ -81,7 +81,7 @@ if update_db == 'yes':
     ihs_join = np.vstack((ihs_afr_std, ihs_eur_std, df['uniq_id'])).transpose()  # join the two columns
     sqltuples = tuple(map(tuple, ihs_join)) # convert each row of the two columns to a tuple for sql
     # Insert a row into the table
-    # cursor.executemany('REPLACE INTO sweep_simulations_stats (uniq_id, ihs_afr_std, ihs_eur_std) VALUES (?,?,?)', sqltuples)
+    # IMPORTANT --> BE SURE TO MAKE uniq_id the primary key. This can be done in DB Browser or python
     update_sql = """
         UPDATE sweep_simulations_stats SET ihs_afr_std=?, ihs_eur_std=? WHERE uniq_id=?
     """

@@ -10,12 +10,12 @@ import numpy as np
 from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
-db_name = 'population_simulation.db'
+db_name = 'population_simulation_v2.db'
 table_name = 'neutral_simulations_stats'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 
-# if update_db == 'yes':
-engine = create_engine('sqlite:///' + db_path + db_name, echo=False)
+if update_db == 'yes':
+    engine = create_engine('sqlite:///' + db_path + db_name, echo=False)
 
 '''
 -----------------------------------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ Query the simulation db and extract unstandardized iHS and allele counts
 '''
 
 start = time.time()
-conn = sqlite3.connect(db_path + 'population_simulation.db')
+conn = sqlite3.connect(db_path + db_name)
 
 # define sql query based on the unique simulation name
 sql2 = """
@@ -85,6 +85,8 @@ if update_db == 'yes':
     update_sql = """
         UPDATE neutral_simulations_stats SET ihs_afr_std=?, ihs_eur_std=? WHERE uniq_id=?
     """
+    # Insert a row into the table
+    # IMPORTANT --> BE SURE TO MAKE uniq_id the primary key. This can be done in DB Browser or python
     cursor.executemany(update_sql, sqltuples)
     # Commit the changes
     conn.commit()
