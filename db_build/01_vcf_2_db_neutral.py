@@ -22,7 +22,7 @@ To Do:
 
 # update_db = 'no'
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
-db_name = 'population_simulation.db'
+db_name = 'population_simulation_v2.db'
 table_name = 'neutral_simulations'
 file_path = 'C:/Users/scott/OneDrive/pop_sim_output/neutral/'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
