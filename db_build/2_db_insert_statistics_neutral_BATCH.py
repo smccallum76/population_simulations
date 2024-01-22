@@ -11,7 +11,7 @@ import numpy as np
 from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
-db_name = 'population_simulation.db'
+db_name = 'population_simulation_v2.db'
 table_name = 'neutral_simulations_stats'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 
@@ -26,7 +26,7 @@ Query the simulation db to determine the unique number of simulations
 '''
 
 start = time.time()
-conn = sqlite3.connect(db_path + 'population_simulation.db')
+conn = sqlite3.connect(db_path + db_name)
 
 sql = ("""
        SELECT DISTINCT
@@ -48,7 +48,7 @@ Set up batch index list
 -----------------------------------------------------------------------------------------------------------------------
 '''
 # define a batch
-batch_size = 30  # number of simulations to use in each batch
+batch_size = 50  # number of simulations to use in each batch
 batch_rmdr = len(uniq_sims) % batch_size  # account for the leftovers when total sims is not evenly divided by batch
 batch_count = int(len(uniq_sims) / batch_size)  # number of batches based on the batch size
 if batch_rmdr > 0:  # add on more to the batch to account for the leftovers
@@ -133,16 +133,6 @@ for batch in idx_batch_list:
         except ZeroDivisionError:
             ihs_eur = np.nan
 
-        # Standardize the iHS scores
-        try:
-            ihs_afr_std, _ = sa.standardize_by_allele_count(ihs_afr, afr_ac[:, 1], diagnostics=False)
-        except TypeError:
-            ihs_afr_std = np.nan
-        try:
-            ihs_eur_std, _ = sa.standardize_by_allele_count(ihs_eur, eur_ac[:, 1], diagnostics=False)
-        except TypeError:
-            ihs_eur_std = np.nan
-
         '''
         -------------------------------------------------------------------------------------------------------------------
         BUILD TABLE OF STATS DATA
@@ -166,8 +156,8 @@ for batch in idx_batch_list:
         stat_tbl['eur_ac_2'] = eur_ac[:, 2]
         stat_tbl['xpehh'] = xpehh
         stat_tbl['fst'] = fst
-        stat_tbl['ihs_afr_std'] = ihs_afr_std
-        stat_tbl['ihs_eur_std'] = ihs_eur_std
+        stat_tbl['ihs_afr_unstd'] = ihs_afr
+        stat_tbl['ihs_eur_unstd'] = ihs_eur
 
         stat_tbl_batch = pd.concat([stat_tbl_batch, stat_tbl], ignore_index=True)
         '''
