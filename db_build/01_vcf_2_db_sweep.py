@@ -24,7 +24,7 @@ To Do:
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
 db_name = 'population_simulation_v2.db'
 table_name = 'sweep_simulations'
-file_path = 'C:/Users/scott/OneDrive/pop_sim_output/sweep/'
+file_path = 'C:/Users/scott/OneDrive/pop_sim_output/sweep_01212024/'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 
 afr_samples = 100  # african samples

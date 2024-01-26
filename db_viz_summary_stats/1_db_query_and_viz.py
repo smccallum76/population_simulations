@@ -15,7 +15,7 @@ Query the simulation db to determine the unique number of simulations
 '''
 start = time.time()
 path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
-conn = sqlite3.connect(path + 'population_simulation.db')
+conn = sqlite3.connect(path + 'population_simulation_v2.db')
 # enter the stats table name (neutral or sweep)
 table_name = 'sweep_simulations_stats'
 # enter the simulation to evaluate, must be neutral if table is neutral or sweep if the table is sweep. Changing
