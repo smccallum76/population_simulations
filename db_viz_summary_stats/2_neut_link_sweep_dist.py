@@ -27,10 +27,16 @@ sql1 = (f"""
 sql2 = (f"""
        SELECT *
         FROM {table_name}
-        WHERE label IS 'link'
+        WHERE label IS 'link_left'
        """)
 
 sql3 = (f"""
+       SELECT *
+        FROM {table_name}
+        WHERE label IS 'link_right'
+       """)
+
+sql4 = (f"""
        SELECT *
         FROM {table_name}
         WHERE label IS 'neutral'
@@ -38,8 +44,9 @@ sql3 = (f"""
 
 # collect a list of the unique simulations
 sweep = pd.read_sql(sql1, conn)
-link = pd.read_sql(sql2, conn)
-neutral = pd.read_sql(sql3, conn)
+link_left = pd.read_sql(sql2, conn)
+link_right = pd.read_sql(sql3, conn)
+neutral = pd.read_sql(sql4, conn)
 
 end = time.time()
 mins = round((end - start) / 60, 2)
@@ -53,7 +60,8 @@ HISTOGRAM - XP-EHH Distribution
 n_bins = 100
 plt.figure(figsize=(12, 5))
 plt.hist(neutral['xpehh'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
-plt.hist(link['xpehh'], density=True, label='link', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_left['xpehh'], density=True, label='link_left', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_right['xpehh'], density=True, label='link_right', bins=n_bins+300, alpha=0.7, color='tomato')
 plt.hist(sweep['xpehh'], density=True, label='sweep', bins=n_bins, alpha=0.7, color='blue')
 plt.xlabel('XP-EHH Value')
 plt.ylabel('Frequency')
@@ -71,7 +79,8 @@ n_bins = 100
 # african population
 plt.figure(figsize=(12, 5))
 plt.hist(neutral['ihs_afr_std'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
-plt.hist(link['ihs_afr_std'], density=True, label='link', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_left['ihs_afr_std'], density=True, label='link_left', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_right['ihs_afr_std'], density=True, label='link_right', bins=n_bins+300, alpha=0.7, color='tomato')
 plt.hist(sweep['ihs_afr_std'], density=True, label='sweep', bins=n_bins-50, alpha=0.7, color='blue')
 plt.xlabel('iHS Value')
 plt.ylabel('Frequency')
@@ -82,7 +91,8 @@ plt.show()
 # european population
 plt.figure(figsize=(12, 5))
 plt.hist(neutral['ihs_afr_std'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
-plt.hist(link['ihs_eur_std'], density=True, label='link', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_left['ihs_eur_std'], density=True, label='link_left', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_right['ihs_eur_std'], density=True, label='link_right', bins=n_bins+300, alpha=0.7, color='tomato')
 plt.hist(sweep['ihs_eur_std'], density=True, label='sweep', bins=n_bins-50, alpha=0.7, color='blue')
 plt.xlabel('iHS Value')
 plt.ylabel('Frequency')
@@ -99,7 +109,8 @@ n_bins = 100
 
 plt.figure(figsize=(12, 5))
 plt.hist(neutral['fst'], density=True, label='neutral', bins=n_bins+500, alpha=0.7, color='green')
-plt.hist(link['fst'], density=True, label='link', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_left['fst'], density=True, label='link_left', bins=n_bins+300, alpha=0.7, color='red')
+plt.hist(link_right['fst'], density=True, label='link_right', bins=n_bins+300, alpha=0.7, color='tomato')
 plt.hist(sweep['fst'], density=True, label='sweep', bins=n_bins-50, alpha=0.7, color='blue')
 plt.xlabel('Fst Value')
 plt.ylabel('Frequency')
