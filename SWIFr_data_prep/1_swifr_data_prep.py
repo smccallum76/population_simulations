@@ -76,8 +76,8 @@ sweep = sweep.fillna(-998)
 neutral = neutral.fillna(-998)
 
 ''' Save sim stats in their respective folders '''
-link.to_csv('simulations_4_swifr/link/link', sep='\t')
-neutral.to_csv('simulations_4_swifr/neutral/neutral', sep='\t')
-sweep.to_csv('simulations_4_swifr/sweep/sweep', sep='\t')
+link.to_csv('simulations_4_swifr/link/link', sep='\t', index=False)
+neutral.to_csv('simulations_4_swifr/neutral/neutral', sep='\t', index=False)
+sweep.to_csv('simulations_4_swifr/sweep/sweep', sep='\t', index=False)
 
 print('done')
