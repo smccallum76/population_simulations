@@ -86,14 +86,17 @@ neutral = neutral.iloc[0:3000000, :]
 nans_sweep = (sweep['ihs_afr_std'].isna().sum()) / len(sweep['ihs_afr_std'])
 nans_link = (link['ihs_afr_std'].isna().sum()) / len(link['ihs_afr_std'])
 nans_neutral = (neutral['ihs_afr_std'].isna().sum()) / len(neutral['ihs_afr_std'])
+nans_test = (test['ihs_afr_std'].isna().sum()) / len(test['ihs_afr_std'])
 print("The percent of the ihs sweep data that are nans is: ", str(round(nans_sweep * 100, 2)) + "%")
 print("The percent of the ihs link data that are nans is: ", str(round(nans_link * 100, 2)) + "%")
 print("The percent of the ihs neutral data that are nans is: ", str(round(nans_neutral * 100, 2)) + "%")
+print("The percent of the ihs test data that are nans is: ", str(round(nans_test * 100, 2)) + "%")
 
 ''' Replace nans with -998 to match SWIFr null format'''
 link = link.fillna(-998)
 sweep = sweep.fillna(-998)
 neutral = neutral.fillna(-998)
+test = test.fillna(-998)
 
 ''' Save sim stats in their respective folders '''
 link.to_csv('simulations_4_swifr/link/link', sep='\t', index=False)
