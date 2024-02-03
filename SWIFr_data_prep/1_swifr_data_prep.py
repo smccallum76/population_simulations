@@ -61,6 +61,8 @@ sql3 = (f"""
 sweep = pd.read_sql(sql1, conn)
 link = pd.read_sql(sql2, conn)
 neutral = pd.read_sql(sql3, conn)
+# there are ~22 million rows of neutral data, for now I'm knocking this back to 3 million b/c that's just excessive
+neutral = neutral.iloc[0:3000000, :]
 
 ''' Print the pct of nans in ihs data'''
 nans_sweep = (sweep['ihs_afr_std'].isna().sum()) / len(sweep['ihs_afr_std'])
