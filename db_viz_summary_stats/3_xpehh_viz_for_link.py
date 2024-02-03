@@ -40,23 +40,27 @@ sql1 = (f"""
         
         FROM {table_name}
         WHERE (snp_position >= 2e6) AND
-            (snp_position <=  3e6) AND
-            (xpehh > 0) --This restrain ensures that only xpehh values typical of a sweep-like signature are included
+            (snp_position <=  3e6)
        """)
 
 # collect a list of the unique simulations
 sim = pd.read_sql(sql1, conn)
 conn.close()
 
+sim_pos = sim[sim['xpehh'] > 0]  # greater than zero inferred to be  sweep-like
+sim_neg = sim[sim['xpehh'] <= 0]  # less than zero inferred to be neutral-like
+
 '''
 -----------------------------------------------------------------------------------------------------------------------
+Analysis #1 --> Review the distribution of xpehh > zero +/-500K bp from sweep event
+
 Using the distribution of xpehh around the sweep event for all simulations
 Histogram showing the distribution of XP-EHH values > 0 around the sweep location
 -----------------------------------------------------------------------------------------------------------------------
 '''
 n_bins = 500
-snp_mean = sim['snp_position'].mean()  # mean of snps with xp-ehh values greater than zero
-snp_sd = sim['snp_position'].std()  # sd of snps with xp-ehh values greater than zero
+snp_mean = sim_pos['snp_position'].mean()  # mean of snps with xp-ehh values greater than zero
+snp_sd = sim_pos['snp_position'].std()  # sd of snps with xp-ehh values greater than zero
 x_range = np.linspace(2e6, 3e6, n_bins)  # range to use for normal distribution
 norm_snp = norm.pdf(x_range, snp_mean, snp_sd)  # normal dist with mean and sd of snp_mean and snp_sd respectively
 norm_ppf = norm.ppf(0.975, loc=0, scale=1)  # z-score to use for defining the 95% range (basically just 1.96)
@@ -68,20 +72,52 @@ print("The above value (rounded to nearest 10k) will be used to define the linke
 print("-------------------------------------------------------------------------------------------------------------")
 
 plt.figure(figsize=(12, 5))
-plt.hist(sim['snp_position'], bins=n_bins, density=False, label='Sweep Footprint', alpha=0.7, color='blue')
-plt.plot(x_range, norm_snp/norm_snp.sum() * len(sim['snp_position']), color='red')
+plt.hist(sim_pos['snp_position'], bins=n_bins, density=False, label='Sweep Footprint', alpha=0.7, color='blue')
+plt.plot(x_range, norm_snp/norm_snp.sum() * len(sim_pos['snp_position']), color='red')
 plt.axvline(x=sweep_pos, color='black', linestyle='--', label='Sweep Location')
 plt.axvline(x=sweep_pos - norm_ppf*snp_sd, color='red', linestyle='--', label='lower 2.5%')
 plt.axvline(x=sweep_pos + norm_ppf*snp_sd, color='red', linestyle='--', label='upper 97.5%')
 plt.annotate('Sweep Footprint +/- ' + str(sweep_foot), xy=(2.8e6, 5000))
 plt.xlabel('SNP Position')
 plt.ylabel('Count of XP-EHH > 0')
-plt.title('Sweep Footprint Distribution')
+plt.title('Sweep Footprint Distribution, Method 2')
 plt.legend()
 plt.show()
 
+'''
+-----------------------------------------------------------------------------------------------------------------------
+Analysis #2 --> Review the fraction of xpehh>0 when including xpehh<0 on a per bin basis
+-----------------------------------------------------------------------------------------------------------------------
+'''
 
+hist_pos, bin_pos = np.histogram(sim_pos['snp_position'], bins=n_bins, density=False)  # hist and bins for xpehh>0
+hist_neg, bin_neg = np.histogram(sim_neg['snp_position'], bins=bin_pos, density=False)  # hist and bins for xpehh<=0
+xp_frc = hist_pos / (hist_pos + hist_neg)  # fraction of xpehh > 0
 
+# xp_frc_scale = xp_frc * hist_pos  # scaling to match sweep footprint method 1
+xp_frc_sd = sim_pos['snp_position'].std()   # assumed to be the same as method 1
+xp_frc_mean = np.mean(bin_pos)  # this should be the same as method 1
+
+x_range2 = np.linspace(2e6, 3e6, n_bins)  # range to use for normal distribution
+norm_snp2 = norm.pdf(x_range2, xp_frc_mean, xp_frc_sd)  # normal dist with mean and sd of snp_mean and snp_sd respectively
+norm_ppf2 = norm.ppf(0.975, loc=0, scale=1)  # z-score to use for defining the 95% range (basically just 1.96)
+sweep_foot2 = round(round(norm_ppf2 * xp_frc_sd, -4),)
+
+plt.figure(figsize=(12, 5))
+plt.plot(bin_pos[1::], xp_frc, label='Sweep Footprint Method 2', color='dodgerblue')
+# plt.plot(x_range, norm_snp2/np.sum(norm_snp2) * 125, color='red')  # scaling of 125 not robust, was done by trial and error
+plt.plot(x_range, norm_snp2 * np.max(xp_frc)/np.max(norm_snp2), color='red')  # alternate scale based on max xp_frc
+plt.axvline(x=sweep_pos, color='black', linestyle='--', label='Sweep Location')
+plt.axvline(x=sweep_pos - norm_ppf2*xp_frc_sd, color='red', linestyle='--', label='lower 2.5%')
+plt.axvline(x=sweep_pos + norm_ppf2*xp_frc_sd, color='red', linestyle='--', label='upper 97.5%')
+plt.annotate('Sweep Footprint +/- ' + str(sweep_foot2), xy=(2.8e6, 0.5))
+plt.xlabel('SNP Position')
+plt.ylabel('Fraction of XP-EHH > 0')
+plt.title('Sweep Footprint Distribution, Method 2')
+plt.legend()
+plt.show()
+
+print('done')
 
 
 
