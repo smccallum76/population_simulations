@@ -58,12 +58,6 @@ for f in files:
     # - the columns are structured such that we have afr_ind0_diploid0, afr_ind0_dip1, afr_ind1_dip0, afr_ind1_dip1...eur_ind99_dip0, eur_ind99_dip1
     gt_2d = np.array(vcf['calldata/GT']).reshape(gt_len, -1)
 
-    # script below is to get rid of monomorphic SNP sites
-    gt_2d_width = np.shape(gt_2d)[1]  # get the width of gt_2d, but will be 400 (200 ind with 2 dips)
-    # mask the data that does not sum to 0 or 400 (width of gt_2d)
-    mask = (np.sum(gt_2d, axis=1) != 0) & (np.sum(gt_2d, axis=1) != gt_2d_width)
-    gt_2d = gt_2d[mask, :]  # apply mask
-
     '''
     -----------------------------------------------------------------------------------------------------------------------
     Build column names based on the number of afr and eur samples (100 of each)
@@ -90,6 +84,12 @@ for f in files:
     gt_df['variant_alt2'] = vcf['variants/ALT'][:, 2]
     gt_df['vcf_name'] = f
     gt_df['uniq_id'] = gt_df['vcf_name'] + "_" + gt_df['snp_position'].astype(str)
+
+    # script below is to get rid of monomorphic SNP sites
+    gt_2d_width = np.shape(gt_2d)[1]  # get the width of gt_2d, but will be 400 (200 ind with 2 dips)
+    # mask the data that does not sum to 0 or 400 (width of gt_2d)
+    mask = (np.sum(gt_2d, axis=1) != 0) & (np.sum(gt_2d, axis=1) != gt_2d_width)
+    gt_df = gt_df.iloc[mask, :].reset_index(drop=True)  # apply mask
 
     '''
     -----------------------------------------------------------------------------------------------------------------------
