@@ -10,10 +10,12 @@ import numpy as np
 from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
-db_name = 'population_simulation_v2.db'
+db_name = 'population_simulation_v3.db'
 table_name = 'sweep_simulations_stats'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
-
+print('----------------------------------------------------------------------------------')
+print('BE SURE THAT YOU SET uniq_id AS THE PRIMARY KEY PRIOR TO RUNNING THIS SCRIPT')
+print('----------------------------------------------------------------------------------')
 if update_db == 'yes':
     engine = create_engine('sqlite:///' + db_path + db_name, echo=False)
 
@@ -85,9 +87,12 @@ if update_db == 'yes':
     update_sql = """
         UPDATE sweep_simulations_stats SET ihs_afr_std=?, ihs_eur_std=? WHERE uniq_id=?
     """
+    print('Updating the database.')
     cursor.executemany(update_sql, sqltuples)
+    print('Committing db changes')
     # Commit the changes
     conn.commit()
+    print('Closing cursor')
     # Close the cursor and the connection
     cursor.close()
 

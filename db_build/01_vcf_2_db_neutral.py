@@ -20,8 +20,8 @@ To Do:
 - looks like a file size reduction from about 18Mb to 10 Mb. 
 '''
 
-update_db = 'no'
-# update_db = input("Would you like to update the DB, 'yes' or 'no': ")
+# update_db = 'no'
+update_db = input("Would you like to update the DB, 'yes' or 'no': ")
 db_name = 'population_simulation_v3.db'
 table_name = 'neutral_simulations'
 file_path = 'C:/Users/scott/OneDrive/pop_sim_output/neutral_01222024_active/'

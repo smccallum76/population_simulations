@@ -43,7 +43,7 @@ extended_events = stdpopsim.ext.selective_sweep(
     single_site_id=locus_id,
      # this is where the mutation starts
     population="AFR",
-    selection_coeff=0.05,  # selection coefficient for the mutation [0.1 for humans]
+    selection_coeff=0.05,  # selection coefficient for the mutation [0.01 for humans]
     mutation_generation_ago=300,  # mutation originates 300 gens ago in AFR pop [5k-30k years, or 10k for one]
     min_freq_at_end=0.3  # mutation frequency at present day
 )

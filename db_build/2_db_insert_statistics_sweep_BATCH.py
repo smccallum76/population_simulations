@@ -10,7 +10,7 @@ import numpy as np
 from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
-db_name = 'population_simulation_v2.db'
+db_name = 'population_simulation_v3.db'
 table_name = 'sweep_simulations_stats'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 
@@ -171,7 +171,7 @@ for batch in idx_batch_list:
         stat_tbl_batch = pd.concat([stat_tbl_batch, stat_tbl], ignore_index=True)
         '''
         -------------------------------------------------------------------------------------------------------------------
-        ADD STATS TABLE TO THE SIMULATION DB - not yet complete
+        ADD STATS TABLE TO THE SIMULATION DB
         -------------------------------------------------------------------------------------------------------------------
         '''
     if update_db == 'yes':

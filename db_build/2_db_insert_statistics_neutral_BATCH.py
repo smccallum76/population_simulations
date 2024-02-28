@@ -11,7 +11,7 @@ import numpy as np
 from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
-db_name = 'population_simulation_v2.db'
+db_name = 'population_simulation_v3.db'
 table_name = 'neutral_simulations_stats'
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 

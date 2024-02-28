@@ -126,11 +126,12 @@ print("Saving VCF")
 #     geno_array = np.append(geno_array, vars, axis=0)  # transpose this
 
 # write the simulations in vcf format
-with open("output/ts_sweep_Scaling9_300x40_05.vcf", "w") as vcf_file:
-    ts_sweep.write_vcf(vcf_file)
 
-with open("output/ts_neutral_Scaling9_300x40_05.vcf", "w") as vcf_file:
-    ts_neutral.write_vcf(vcf_file)
+# with open("output/ts_sweep_Scaling9_300x40_05.vcf", "w") as vcf_file:
+#     ts_sweep.write_vcf(vcf_file)
+#
+# with open("output/ts_neutral_Scaling9_300x40_05.vcf", "w") as vcf_file:
+#     ts_neutral.write_vcf(vcf_file)
 
 end = time.time()
 delta = round((end - start) / 60, 2)

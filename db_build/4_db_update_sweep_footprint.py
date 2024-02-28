@@ -15,7 +15,7 @@ from sqlalchemy import create_engine
 
 update_db = input("Would you like to update the DB, 'yes' or 'no': ")
 # update_db = 'yes'
-db_name = 'population_simulation_v2.db'
+db_name = 'population_simulation_v3.db'
 table_name = 'sweep_simulations_stats'  # select sweep_simulations_stats OR sweep_simulations
 db_path = 'C:/Users/scott/PycharmProjects/population_simulations/db_build/'
 sweep_footprint = 250000  # this was derived using the b_viz_summary_stats/3_xpehh_viz_for_link.py script
