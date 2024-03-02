@@ -93,7 +93,7 @@ for f in files:
 
     '''
     -----------------------------------------------------------------------------------------------------------------------
-    Add neutral, link, and sweep labels
+    Add neutral, link_left, and sweep labels
     
     For the neutral simulations there was not a sweep introduced, therefore all rows are labeled as neutral. 
     -----------------------------------------------------------------------------------------------------------------------

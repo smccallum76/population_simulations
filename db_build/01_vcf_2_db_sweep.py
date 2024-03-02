@@ -93,7 +93,7 @@ for f in files:
 
     '''
     -----------------------------------------------------------------------------------------------------------------------
-    Add neutral, link, and sweep labels
+    Add neutral, link_left, and sweep labels
     
     For this set of sims the length is 5e6 and the sweep is hard set at 2.5e6. 
     The linkage is assumed to be a fixed buffer of 500K  +/- the sweep location. This linkage range was determined based
@@ -102,7 +102,7 @@ for f in files:
     '''
 
     gt_df['label'] = 'neutral'
-    gt_df.loc[(gt_df['snp_position'] > 2.5e6 - 5e5) & (gt_df['snp_position'] < 2.5e6 + 5e5), 'label'] = 'link'
+    gt_df.loc[(gt_df['snp_position'] > 2.5e6 - 5e5) & (gt_df['snp_position'] < 2.5e6 + 5e5), 'label'] = 'link_left'
     gt_df.loc[gt_df['snp_position'] == 2.5e6, 'label'] = 'sweep'
 
     if update_db == 'yes':
