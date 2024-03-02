@@ -7,7 +7,7 @@ Steps applied:
 2. A 500K span was assumed to be far more than a typical human sweep footprint, which is approx. 100K (lauren s.)
 3. Plot the distribution of snp positions from the query.
 4. Fit a normal distribution to the observed snp position
-5. Use the 95% area (~1.96 * sd) to define the +/- range to use for defining link events.
+5. Use the 95% area (~1.96 * sd) to define the +/- range to use for defining link_left events.
 """
 
 

@@ -1,5 +1,5 @@
 """
-Code to query the population simulation db and visualize the neutral, sweep, and link distributions
+Code to query the population simulation db and visualize the neutral, sweep, and link_left distributions
 """
 
 import sqlite3
