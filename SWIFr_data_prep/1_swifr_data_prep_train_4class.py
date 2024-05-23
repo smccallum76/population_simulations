@@ -121,10 +121,22 @@ test = test.fillna(-998)
 
 ''' Save sim stats in their respective folders '''
 print("Saving Data")
-link_left.to_csv('simulations_4_swifr/link_left/link_left', sep='\t', index=False)
-link_right.to_csv('simulations_4_swifr/link_right/link_right', sep='\t', index=False)
-neutral.to_csv('simulations_4_swifr/neutral/neutral', sep='\t', index=False)
-sweep.to_csv('simulations_4_swifr/sweep/sweep', sep='\t', index=False)
-test.to_csv('simulations_4_swifr/test/test', sep='\t', index=False)
+link_left.to_csv('simulations_4_swifr/4_class/link_left/link_left', sep='\t', index=False)
+link_right.to_csv('simulations_4_swifr/4_class/link_right/link_right', sep='\t', index=False)
+neutral.to_csv('simulations_4_swifr/4_class/neutral/neutral', sep='\t', index=False)
+sweep.to_csv('simulations_4_swifr/4_class/sweep/sweep', sep='\t', index=False)
+test.to_csv('simulations_4_swifr/4_class/test/test', sep='\t', index=False)
+
+# Create a training set with neutral, ll, sweep, lr in the same file (like test, but only with training data)
+# this was only needed for the hmm code to use for determining pi and A_trans
+link_left['label'] = 'link_left'
+link_right['label'] = 'link_right'
+neutral['label'] = ('neutral')
+sweep['label'] = 'sweep'
+
+train = pd.concat([neutral, link_left, sweep, link_right], ignore_index=True)
+train = train.sort_values(by=['vcf_name', 'snp_position'])
+# save the train data
+train.to_csv('simulations_4_swifr/4_class/train/train', sep='\t', index=False)
 
 print('done')
